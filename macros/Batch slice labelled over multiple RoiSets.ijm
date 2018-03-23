@@ -13,8 +13,8 @@
 // if you specify the right sequence in the 3DLeafCT programm.
 //
 // Author: Guillaume Théroux-Rancourt (guillaume.theroux-rancourt@boku.ac.at)
-// Created on 16.05.2018
-// Last modification on 16.05.2018
+// Created on 16.02.2018
+// Last modification on 16.02.2018
 //
 // TO DO:
 // - Have all the ROIs in the same RoiSet and detect the slice value

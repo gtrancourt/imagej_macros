@@ -1,0 +1,23 @@
+// Open the file with the angles of each
+pathfile=File.openDialog("Choose the file to Open:");
+filestring=File.openAsString(pathfile);
+rows=split(filestring, "\n");
+a=newArray(rows.length);
+  for(i=0; i<rows.length; i++) {
+    columns=split(rows[i],"\t");
+      a[i]=parseInt(columns[8]);
+      print(a[i]);
+    }
+
+// Create a duplicate file
+inputTitle = getTitle();
+run("Duplicate...", "title=&inputTitle duplicate");
+
+// Get the total number of slices
+n = nSlices;
+
+// Rotate each slice
+  for (i=1; i<=nSlices(); i++) {
+     setSlice(i);
+     run("Rotate...", "angle="+a[i]+" grid=1 interpolation=None slice");
+    }
