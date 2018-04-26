@@ -7,8 +7,7 @@
 // Last modification on 22.03.2018
 //
 // TO DO:
-// - Have all the ROIs in the same RoiSet and detect the slice value
-//   (instead of iterating over multiple zip files)
+// - Have the user select the colors of the different tissues. 
 
   setBatchMode("hide"); //newly opened windows are not displayed -- up to 20x faster
 
@@ -64,6 +63,8 @@ selectImage(compositeID);
 run("Duplicate...", "title=stomata duplicate");
 setAutoThreshold("Default dark");
 setThreshold(80, 90);
+// setThreshold(169,171);
+// setThreshold(190, 192);
 run("Convert to Mask", "method=Default background=Dark black");
 // saveAs("tiff", outputDir + name + "-stomata");
 stomataID = getImageID();
@@ -74,6 +75,8 @@ selectImage(compositeID);
 run("Duplicate...", "title=mesophyll duplicate");
 setAutoThreshold("Default dark");
 setThreshold(151,171);
+// setThreshold(84,104);
+// setThreshold(99,156);
 run("Convert to Mask", "method=Default background=Dark black");
 run("Invert", "stack");
 // saveAs("tiff", outputDir + name + "-mesophyll");
@@ -84,6 +87,7 @@ mesophylID = getImageID();
 selectImage(compositeID);
 run("Duplicate...", "title=epidermis duplicate");
 setAutoThreshold("Default dark");
+// setThreshold(169,171);
 setThreshold(151,153);
 run("Convert to Mask", "method=Default background=Dark black");
 setBatchMode("show");
@@ -91,8 +95,11 @@ run("Outline", "stack");
 run("Close-", "stack");
 setBackgroundColor(0, 0, 0);
 setTool("rectangle");
-waitForUser("Select the area with the epidermis to clear, then click OK.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nNOTES\nMake sure the epidermis is within the selection along the whole stack.\nFor amphistomatous leaves, click OK within selecting an epidermis to remove.");
-run("Clear", "stack");
+waitForUser("Select the area with the epidermis to clear, then click OK.\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nNOTES\nMake sure the epidermis is within the selection along the whole stack.\nFor amphistomatous leaves, click OK while pressing the Shift key\n(without selecting an epidermis to remove).");
+if (isKeyDown("Shift") == false) {
+	run("Clear", "stack");
+}
+
 // saveAs("tiff", outputDir + name + "-epidermis");
 epidermisID = getImageID();
 epidermisTitle = getTitle();
