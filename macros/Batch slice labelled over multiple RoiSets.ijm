@@ -1,4 +1,4 @@
-// Automatically segment microCT leaf cross sections for the use of the 
+// Automatically segment microCT leaf cross sections for the use of the
 // 3DLeafCT machine learning algorithm (https://github.com/masonearles/3DLeafCT)
 //
 // This macro is to segment over on a binary image of the airspace.
@@ -26,6 +26,7 @@ fullIMG = getTitle();
 getPixelSize(unit, pw, ph, pd);
 
 // Get the ROIs
+// Create RoiSets with all the zip file names for individual slices
 dir = getDirectory("image");
 list = getFileList(dir);
 
@@ -47,24 +48,26 @@ for (i=0; i<RoiSets.length; i++) {
 	selectWindow(fullIMG);
 	roiManager("open", dir+RoiSets[i]);
 	run("Colors...", "foreground=green background=orange selection=yellow");
-	roiManager("Select", 1);
+	roiManager("Select", 1); //Select the 2nd ROI = Mesophyll
 	run("Clear Outside", "slice");
 	run("Colors...", "foreground=green background=yellow selection=yellow");
-	roiManager("Select", 0);
+	roiManager("Select", 0); //Select the 1st ROI = Mesophyll + Epidermis
 	run("Clear Outside", "slice");
 
+	//Count the number of ROIs. Will skip the first 2 below
 	nROIs = roiManager("count");
 
 	for (j=2; j<nROIs; j++) {
-		selectWindow(fullIMG);	
+		selectWindow(fullIMG);
 		roiManager("Select", j);
 		run("Fill", "slice");
 	}
 
-
+	// Copy each labelled slice to a new file
+	// Create that image stack the first time
 	run("Select All");
 	run("Copy");
-	
+
 	if (i == 0) {
 		run("Internal Clipboard");
 	} else {
@@ -76,5 +79,7 @@ for (i=0; i<RoiSets.length; i++) {
 	roiManager("reset")
 }
 
+// Set the scale and save the file
 selectWindow("Clipboard");
 run("Set Scale...", "distance=1 known="+pd+" unit="+unit);
+saveAs("Tiff", dir + "labelled-stack")
