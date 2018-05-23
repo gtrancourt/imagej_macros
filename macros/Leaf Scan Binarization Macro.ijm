@@ -1,7 +1,13 @@
 // Recursively lists the files in a user-specified directory.
-// Open a file on the list by double clicking on it.
+// Have all the images in one directory with nothing else in it.
+//
+// Created by Guillaume Théroux-Rancourt
+// guillaume.theroux-rancourt@boku.ac.at
+// Last modified on 2018-05-23
+
 
 dir = getDirectory("Choose a Directory ");
+res = getNumber("What is the resolution in dpi? Scale will be set in cm.", 600)
 // outputdir = getDirectory("Choose a Directory ");
 list = getFileList(dir);
 
@@ -12,9 +18,14 @@ if (File.isDirectory(dir + "binary") == 0) {
     File.makeDirectory(dir + "XY_coordinates");
     }
 
-for (j=0; j<list.length; j++) {
+// Set the measurements and colors
+run("Set Measurements...", "area centroid perimeter bounding fit shape feret's display redirect=None decimal=3");
+run("Colors...", "foreground=white background=black selection=yellow");
 
+// Start the loop over the image wiles in the direcxtory
+for (j=0; j<list.length; j++) {
 	open(list[j]);
+  run("8-bit");
 
 	// Get filename and working directory
 	name = getTitle();
@@ -25,7 +36,7 @@ for (j=0; j<list.length; j++) {
 	setAutoThreshold("Default");
 	setOption("BlackBackground", true);
 	run("Convert to Mask");
-	run("Analyze Particles...", "size=100-Infinity show=Masks include add");
+  run("Analyze Particles...", "size=100-Infinity show=Masks display add");
 	run("Invert");
 	binaryImg = getImageID();
 
@@ -40,28 +51,49 @@ for (j=0; j<list.length; j++) {
 		roiManager("Select", i);
 		run("Copy");
 		run("Internal Clipboard");
+    run("Set Scale...", "distance="+res+" known=2.54 unit=cm");
 		getDisplayedArea(x, y, width, height);
 		// Rotate the image if it is in landscape format
 		if (width > height) {
 			run("Rotate 90 Degrees Left");
 		}
-		getDisplayedArea(xd, yd, wd, hd);
-		run("Canvas Size...", "width="+wd + 4+" height="+hd+4+" + 4 position=Center"); //increase the size of the canvas by 2-px each side
+    getDisplayedArea(xd, yd, wd, hd);
+    // Analyse only leaves and not shapes that mgiht have been created by shadows
+    if (hd/wd < 5) {
+      //increase the size of the canvas by 5-px each side
+      run("Canvas Size...", "width="+wd+10+" height="+hd+10+" position=Center");
+      //  Save the full leaf image
+      saveAs("Png", dir + "binary/" + name +"_"+  i+1);
 
-
-		//  Save the image
-		saveAs("Png", dir + "binary/" + name +"_"+  i+1);
-
-		//  create the outline image
-		run("Outline");
-		saveAs("Png", dir + "outline/" + name +"_"+  i+1);
-
-		// Save the XY coordinates of the outline for later use in the R package MoMocs
-		roiManager("Select", i);
-		saveAs("XY Coordinates", dir + "XY_coordinates/" + name +"_"+  i+1);
-		close();
-		}
-
+      //  create the outline image and save it
+      run("Fill Holes");
+      run("Outline");
+      saveAs("Png", dir + "outline/" + name +"_"+  i+1);
+    }
+  }
 	roiManager("reset")
 	run("Close All");
+}
+
+selectWindow("Results");
+saveAs("Results",  dir + "Results.csv");
+run("Close");
+
+// Analyze all the full leaves
+pathToBinaries = dir + "binary/";
+run("Measure...", "choose=" + pathToBinaries);
+// Table.renameColumn(oldName, newName);
+saveAs("Results",  dir + "Results-binaries.csv");
+run("Close");
+
+// Save the XY coordinates
+listOutlines = getFileList(dir + "outline/");
+for (k=0; k<listOutlines.length; k++) {
+	open(dir + "outline/" + listOutlines[k]);
+  name = getTitle();
+  run("Analyze Particles...", "size=0-Infinity show=Nothing add");
+  roiManager("Select", 0);
+  saveAs("XY Coordinates", dir + "XY_coordinates/" + name);
+	roiManager("reset")
+  run("Close All");
 }
