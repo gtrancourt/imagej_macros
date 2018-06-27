@@ -1,9 +1,14 @@
-// Recursively lists the files in a user-specified directory.
+// Extract individual leaves from a scan of multiple leaves
+// an analyze them each individually.
+// Will alss save a binary image, an outline, and XY coordinates.
+// Will save the results in a .csv file.
+//
+// REQUIREMENTS:
 // Have all the images in one directory with nothing else in it.
 //
 // Created by Guillaume Théroux-Rancourt
 // guillaume.theroux-rancourt@boku.ac.at
-// Last modified on 2018-05-23
+// Last modified on 2018-06-27
 
 
 dir = getDirectory("Choose a Directory ");
@@ -13,6 +18,7 @@ list = getFileList(dir);
 
 // Create ouput dir if absent
 if (File.isDirectory(dir + "binary") == 0) {
+    File.makeDirectory(dir + "individual_8_bit_images");
     File.makeDirectory(dir + "binary");
     File.makeDirectory(dir + "outline");
     File.makeDirectory(dir + "XY_coordinates");
@@ -25,28 +31,40 @@ run("Colors...", "foreground=white background=black selection=yellow");
 // Start the loop over the image wiles in the direcxtory
 for (j=0; j<list.length; j++) {
 	open(list[j]);
-  run("8-bit");
-
-	// Get filename and working directory
-	name = getTitle();
+  // run("8-bit");
+  // Get filename and working directory
+  name = getTitle();
+  originalImg = getImageID();
   	index = lastIndexOf(name, ".");
   	if (index!=-1) name = substring(name, 0, index);
 
+  run("Duplicate...", " ");
+  duplicateID = getImageID();
+
 	// Binarize the scan
+	selectImage(originalImg);
 	setAutoThreshold("Default");
-	setOption("BlackBackground", true);
-	run("Convert to Mask");
-  run("Analyze Particles...", "size=100-Infinity show=Masks display add");
+  //setThreshold(0, 200);
+  setOption("BlackBackground", true);
+  run("Convert to Mask");
+  run("Set Scale...", "distance="+res+" known=2.54 unit=cm");
+  run("Analyze Particles...", "size=1-Infinity show=Masks display add");
 	run("Invert");
 	binaryImg = getImageID();
 
-	// Here, make loop to select one ROI, copy it to a new file,
+	// Here, make loop to selePngct one ROI, copy it to a new file,
 	// remove some discretization error at the edge (run("Close-")),
 	// roate the image if needed to orient it as portrait with petiole
 	// at the bottom of the image.
 
 	n = roiManager("count");
 	for (i=0; i<n; i++) {
+    selectImage(duplicateID);
+		roiManager("Select", i);
+		run("Copy");
+		run("Internal Clipboard");
+    saveAs("Png", dir + "individual_8_bit_images/" + name +"_"+  i+1);
+
 		selectImage(binaryImg);
 		roiManager("Select", i);
 		run("Copy");
@@ -55,7 +73,7 @@ for (j=0; j<list.length; j++) {
 		getDisplayedArea(x, y, width, height);
 		// Rotate the image if it is in landscape format
 		if (width > height) {
-			run("Rotate 90 Degrees Left");
+			run("Rotate 90 Degrees Right");
 		}
     getDisplayedArea(xd, yd, wd, hd);
     // Analyse only leaves and not shapes that mgiht have been created by shadows
