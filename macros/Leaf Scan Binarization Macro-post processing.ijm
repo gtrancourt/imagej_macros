@@ -39,8 +39,8 @@ setThreshold(1, 210);
 setOption("BlackBackground", true);
 run("Convert to Mask");
 run("Set Scale...", "distance="+res+" known=2.54 unit=cm");
-getDisplayedArea(xd, yd, wd, hd);
-run("Canvas Size...", "width="+wd+10+" height="+hd+10+" position=Center");
+getDisplayedArea(xd, yd, wd1, hd1);
+run("Canvas Size...", "width="+wd1+10+" height="+hd1+10+" position=Center");
 saveAs("Png", dir + "binary/" + name);
 run("Analyze Particles...", "size=1-Infinity display");
 close();
@@ -51,23 +51,22 @@ setBatchMode(true);
 for (j=1; j<list.length; j++) {
   showProgress(j+1, list.length);
 	open(list[j]);
-  // run("8-bit");
+  run("Set Scale...", "distance="+res+" known=2.54 unit=cm");
+
   // Get filename and working directory
   name = getTitle();
-  originalImg = getImageID();
 	index = lastIndexOf(name, ".");
 	if (index!=-1) name = substring(name, 0, index);
 
   // Binarize the scan
-	selectImage(originalImg);
   setThreshold(1, 210);
   setOption("BlackBackground", true);
   run("Convert to Mask");
-  run("Set Scale...", "distance="+res+" known=2.54 unit=cm");
-  getDisplayedArea(xd, yd, wd, hd);
+  run("Analyze Particles...", "size=1-Infinity display");
+  wd = getWidth();
+  hd = getHeight();
   run("Canvas Size...", "width="+wd+10+" height="+hd+10+" position=Center");
   saveAs("Png", dir + "binary/" + name);
-  run("Analyze Particles...", "size=1-Infinity display");
   close();
 }
 
