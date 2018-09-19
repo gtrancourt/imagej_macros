@@ -5,8 +5,8 @@
 //
 // ROIs (Regions of interest in ImageJ) sets (zip files containing ROIs)
 // should be arranged in the RoiManager in the order below:
-// - 1st element: Whole leaf
-// - 2nd element: Mesophyll only (i.e. everything expect the epidermis)
+// - 1st element: Mesophyll only (i.e. everything expect the epidermis)
+// - 2nd element: Whole leaf
 // - 3rd until the end: Veins/Vasculature
 //
 // Files should be arranged sequentially in you folder, but this is less
@@ -14,7 +14,7 @@
 //
 // Author: Guillaume Théroux-Rancourt (guillaume.theroux-rancourt@boku.ac.at)
 // Created on 16.02.2018
-// Last modification on 16.02.2018
+// Last modification on 17.09.2018
 //
 // TO DO:
 // - Have all the ROIs in the same RoiSet and detect the slice value
@@ -23,7 +23,7 @@
 
 // Get information out of the opened image
 fullIMG = getTitle();
-getPixelSize(unit, pw, ph, pd);
+getPixelSize(unit, pw, ph, pd);send to terminal in atom
 
 // Get the ROIs
 // Create RoiSets with all the zip file names for individual slices
@@ -43,16 +43,10 @@ RoiSets = Array.slice(RoiSets,1);
 
 Array.show(RoiSets);
 
-
 for (i=0; i<RoiSets.length; i++) {
 	selectWindow(fullIMG);
 	roiManager("open", dir+RoiSets[i]);
 	run("Colors...", "foreground=green background=orange selection=yellow");
-	roiManager("Select", 1); //Select the 2nd ROI = Mesophyll
-	run("Clear Outside", "slice");
-	run("Colors...", "foreground=green background=yellow selection=yellow");
-	roiManager("Select", 0); //Select the 1st ROI = Mesophyll + Epidermis
-	run("Clear Outside", "slice");
 
 	//Count the number of ROIs. Will skip the first 2 below
 	nROIs = roiManager("count");
@@ -62,6 +56,13 @@ for (i=0; i<RoiSets.length; i++) {
 		roiManager("Select", j);
 		run("Fill", "slice");
 	}
+
+	roiManager("Select", 0); //Select the 1st ROI = Mesophyll
+	run("Clear Outside", "slice");
+	run("Colors...", "foreground=green background=yellow selection=yellow");
+	roiManager("Select", 1); //Select the 2nd ROI = Mesophyll + Epidermis
+	run("Clear Outside", "slice");
+
 
 	// Copy each labelled slice to a new file
 	// Create that image stack the first time
