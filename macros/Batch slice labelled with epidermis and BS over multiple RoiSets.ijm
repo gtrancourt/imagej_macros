@@ -1,5 +1,5 @@
 // Automatically segment microCT leaf cross sections for the use of the
-// 3DLeafCT machine learning algorithm (https://github.com/masonearles/3DLeafCT)
+// 3DLeafCT machine learning algorithm (https://github.com/gtrancourt/microCT-leaf-traits)
 //
 // This macro is to segment over on a binary image of the airspace.
 //
