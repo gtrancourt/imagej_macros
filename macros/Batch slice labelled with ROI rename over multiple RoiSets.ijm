@@ -20,7 +20,7 @@ Array.print(list);
 RoiSets = newArray(1);
 
 for (k=0; k<list.length; k++) {
-	if (endsWith(list[k], "0.zip"))
+	if (endsWith(list[k], ".zip"))
 		RoiSets = Array.concat(RoiSets, list[k]);
 }
 
