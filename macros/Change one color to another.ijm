@@ -8,17 +8,23 @@
 //
 // Current form created by: Guillaume Théroux-Rancourt
 // Created on: 2019-03-15
-// Last update: 2019-03-15
+// Last update: 2021-01-28
 
-
-Dialog.addNumber("Value to change", 128);
-Dialog.addNumber("New value", 85);
+Dialog.create("Change one color to another");
+Dialog.addNumber("Value to change", 30);
+Dialog.addNumber("New value", 0);
+Dialog.show();
 
 val1 = Dialog.getNumber();
 val2 = Dialog.getNumber();
 
+setBatchMode(true);
 setColor(val2,val2,val2);
 setThreshold(val1,val1);
-run("Create Selection");
-fill();
-run("Select None");
+for (i=1; i<nSlices+1;i++) {
+  setSlice(i);
+  run("Create Selection");
+  fill();
+  run("Select None");
+}
+setBatchMode(false);
