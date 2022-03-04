@@ -94,7 +94,7 @@ for (i=0; i<RoiSets.length; i++) {
 		if (startsWith(RoiNames[m], "s")) {
 			setForegroundColor(170, 170, 170);
 			roiManager("Select", m); //Select the 5th ROI = Resin canal
-			fill();
+			run("Fill", "slice");
 		}
 	}
 
